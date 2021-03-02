@@ -97,8 +97,7 @@ int main()
 	glEnable(GL_DEPTH_TEST);
 
 	// skybox
-	Shader skyboxShader("./shader/skyboxShader.vs",
-						"./shader/skyboxShader.fs");
+	Shader skyboxShader("./shader/skyboxShader.vs", "./shader/skyboxShader.fs");
 
 	float skyboxVertices[] = {
 		// positions          
@@ -205,7 +204,7 @@ int main()
 		lastFrame = currentFrame;
 
 		//printf("帧数:%.2lf\n", 1.0f/deltaTime);
-		std::cout << "帧数:" << 1.0f / deltaTime << std::endl;
+		//std::cout << "帧数:" << 1.0f / deltaTime << std::endl;
 
 		// input
 		// -----
