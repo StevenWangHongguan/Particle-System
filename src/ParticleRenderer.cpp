@@ -1,35 +1,34 @@
 #include "ParticleRenderer.h"
 #include "Simd.h"
 
-//¹¹Ôìº¯Êı ´´½¨ĞÂµÄquadºÍshader ÇÒÃ¿Ò»¸öäÖÈ¾Æ÷ÓĞ¶À×ÔµÄÍ¶Ó°¾ØÕó 
+//æ„é€ å‡½æ•° åˆ›å»ºæ–°çš„quadå’Œshader ä¸”æ¯ä¸€ä¸ªæ¸²æŸ“å™¨æœ‰ç‹¬è‡ªçš„æŠ•å½±çŸ©é˜µ 
 ParticleRenderer::ParticleRenderer()
 {
 	quad = new Quad();
-	particleShader = new Shader("./shader/particleShader.vs",
-								"./shader/particleShader.fs");
-	VBO = createEmptyVBO(MAX_INSTANCES * INSTANCE_DATA_LENGTH); //ÊµÀıµÄ´óVBO °üº¬ÁËÁ£×ÓÊı * Ã¿¸öÁ£×ÓµÄÊôĞÔ×ÜÊı * Êı¾İÀàĞÍµÄ³¤¶È£¨×Ö½ÚÊı£©
+	particleShader = new Shader("./shader/particleShader.vs", "./shader/particleShader.fs");
+	VBO = createEmptyVBO(MAX_INSTANCES * INSTANCE_DATA_LENGTH); //å®ä¾‹çš„å¤§VBO åŒ…å«äº†ç²’å­æ•° * æ¯ä¸ªç²’å­çš„å±æ€§æ€»æ•° * æ•°æ®ç±»å‹çš„é•¿åº¦ï¼ˆå­—èŠ‚æ•°ï¼‰
 	setUpAttributes(quad->getQuadVAO(), VBO);
-	//Ê¹ÓÃÄ¬ÈÏµÄÍ¶Ó°¾ØÕó
+	//ä½¿ç”¨é»˜è®¤çš„æŠ•å½±çŸ©é˜µ
 	mat4 projection = glm::perspective(glm::radians(60.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 	particleShader->use();
 	particleShader->setMat4("projection", projection);
 	particleShader->stop();
 }
 
-//´ÓÍâ²¿ÉèÖÃÍ¶Ó°¾ØÕó
+//ä»å¤–éƒ¨è®¾ç½®æŠ•å½±çŸ©é˜µ
 void ParticleRenderer::setProjection(const mat4& projection)
 {
 	particleShader->setMat4("projection", projection);
 }
 
-// ¸üĞÂÁ£×ÓµÄÄ£ĞÍÊÓÍ¼¾ØÕó ÒÔ±ãäÖÈ¾ ²¢¾­¹ı´¦ÀíÊ¹µÃÁ£×Ó³¯ÏòÕıÈ·
-// ÈÈµãº¯Êı
+// æ›´æ–°ç²’å­çš„æ¨¡å‹è§†å›¾çŸ©é˜µ ä»¥ä¾¿æ¸²æŸ“ å¹¶ç»è¿‡å¤„ç†ä½¿å¾—ç²’å­æœå‘æ­£ç¡®
+// çƒ­ç‚¹å‡½æ•°
 void ParticleRenderer::updateModelViewMatrix(const vec3& position, float rotation, float scale, mat4 view, float vboData[])
 {
 	mat4 model;
 	model = glm::translate(model, position);
 
-	//ÒÔÏÂ²¿·ÖÎª³¢ÊÔ ĞŞÕı×îÖÕµÄmodelview¾ØÕóµÄĞı×ª²¿·Ö ¼´×óÉÏ½Ç3x3µÄ¾ØÕó»¯Îªµ¥Î»¾ØÕó
+	//ä»¥ä¸‹éƒ¨åˆ†ä¸ºå°è¯• ä¿®æ­£æœ€ç»ˆçš„modelviewçŸ©é˜µçš„æ—‹è½¬éƒ¨åˆ† å³å·¦ä¸Šè§’3x3çš„çŸ©é˜µåŒ–ä¸ºå•ä½çŸ©é˜µ
 	float* p = glm::value_ptr(model);
 	float* q = glm::value_ptr(view);
 	*p = *q;
@@ -47,13 +46,13 @@ void ParticleRenderer::updateModelViewMatrix(const vec3& position, float rotatio
 	if (scale != 1.0f)
 		model = glm::scale(model, vec3(scale));
 
-	// ÒÔÏÂÎªÈÈµãÔËËã
-	//mat4 modelView = view * model;  //²»ÊÇ ÊÇÓ¦¸ÃÏÈ³ËÉÏÔÙĞı×ª£¿
-	mat4 modelView = mutiMatrixBySimd(view, model); //Ê¹ÓÃsimd 20ÍòÁ£×Ó ´Ó30Ö¡ÌáÉıµ½31Ö¡
-	storeMatrixData(modelView, vboData); //´æÈëVBOÊı¾İ
+	// ä»¥ä¸‹ä¸ºçƒ­ç‚¹è¿ç®—
+	//mat4 modelView = view * model;  //ä¸æ˜¯ æ˜¯åº”è¯¥å…ˆä¹˜ä¸Šå†æ—‹è½¬ï¼Ÿ
+	mat4 modelView = mutiMatrixBySimd(view, model); //ä½¿ç”¨simd 20ä¸‡ç²’å­ ä»30å¸§æå‡åˆ°31å¸§
+	storeMatrixData(modelView, vboData); //å­˜å…¥VBOæ•°æ®
 }
 
-//¼¤»î×ÅÉ«Æ÷ ¼¤»î¶¥µãÊôĞÔ ÉèÖÃ»ìºÏ¡¢Éî¶È»º³å
+//æ¿€æ´»ç€è‰²å™¨ æ¿€æ´»é¡¶ç‚¹å±æ€§ è®¾ç½®æ··åˆã€æ·±åº¦ç¼“å†²
 void ParticleRenderer::prepare()
 {
 	particleShader->use();
@@ -69,7 +68,7 @@ void ParticleRenderer::prepare()
 	glDepthMask(false);
 }
 
-//ºÍprepareÏà·´
+//å’Œprepareç›¸å
 void ParticleRenderer::finishRendering()
 {
 	glDepthMask(true);
@@ -94,9 +93,9 @@ void ParticleRenderer::render(const vector<Particle>& particles, Camera camera) 
 	prepare();
 	bindTexture(texture);
 
-	//float *vboData = new float[particles.size() * INSTANCE_DATA_LENGTH]; //¶¯Ì¬·ÖÅäÊı×é »á±¨´í
+	//float *vboData = new float[particles.size() * INSTANCE_DATA_LENGTH]; //åŠ¨æ€åˆ†é…æ•°ç»„ ä¼šæŠ¥é”™
 	pointer = 0;
-	int particlesToDraw = 0; //Òª»æÖÆµÄÁ£×ÓÊı
+	int particlesToDraw = 0; //è¦ç»˜åˆ¶çš„ç²’å­æ•°
 	for (auto& particle : particles)
 	{
 		if (particle.isAlive())
@@ -107,8 +106,8 @@ void ParticleRenderer::render(const vector<Particle>& particles, Camera camera) 
 			particlesToDraw++;
 		}
 	}
-	updateVBOdata(VBO, vboData); //½«´æ´¢ºÃµÄvboÊı¾İ´«µİ¸øVBO
-	// ÎªÊ²Ã´»æÖÆÀàĞÍÊÇÈı½ÇĞÎÏßÌõ£¿
+	updateVBOdata(VBO, vboData); //å°†å­˜å‚¨å¥½çš„vboæ•°æ®ä¼ é€’ç»™VBO
+	// ä¸ºä»€ä¹ˆç»˜åˆ¶ç±»å‹æ˜¯ä¸‰è§’å½¢çº¿æ¡ï¼Ÿ
 	glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, quad->getVertexCount(), particlesToDraw);
 
 	finishRendering();
@@ -116,27 +115,27 @@ void ParticleRenderer::render(const vector<Particle>& particles, Camera camera) 
 
 void ParticleRenderer::bindTexture(ParticleTexture texture)
 {
-	if (texture.getIsAdditve()) //ÊÇ·ñÊ¹ÓÃaddtive»ìºÏ
+	if (texture.getIsAdditve()) //æ˜¯å¦ä½¿ç”¨addtiveæ··åˆ
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	else
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glActiveTexture(GL_TEXTURE0); //¼¤»îÎÆÀíµ¥Ôª °ó¶¨ÎÆÀí
+	glActiveTexture(GL_TEXTURE0); //æ¿€æ´»çº¹ç†å•å…ƒ ç»‘å®šçº¹ç†
 	glBindTexture(GL_TEXTURE_2D, texture.getTextureID());
-	particleShader->setFloat("numberOfRows", texture.getNumberOfRows());  //ÉèÖÃ×ÅÉ«Æ÷µÄuniform
+	particleShader->setFloat("numberOfRows", texture.getNumberOfRows());  //è®¾ç½®ç€è‰²å™¨çš„uniform
 }
 
-//¹¹ÔìäÖÈ¾Æ÷µÄÊ±ºò´´½¨Ò»¸ö¿ÕµÄVBO ÒòÎªÃ¿Ò»Ö¡¶¼Òª¸üĞÂÒ»ÅúÁ£×ÓµÄÊôĞÔÖµ ËùÒÔ²»ÄÜÒ»¿ªÊ¼¾Í´«µİÊı¾İ ĞèÒªÃ¿´Î¸üĞÂÊı¾İ¸øVBO ËùÒÔ¿ªÊ¼´«µİÊı¾İÎªNULL ºóĞøÊ¹ÓÃsubDataÀ´´«µİÊı¾İ
-unsigned int ParticleRenderer::createEmptyVBO(int floatCount) //×î´óµÄ¸¡µãÊıÊıÁ¿
+//æ„é€ æ¸²æŸ“å™¨çš„æ—¶å€™åˆ›å»ºä¸€ä¸ªç©ºçš„VBO å› ä¸ºæ¯ä¸€å¸§éƒ½è¦æ›´æ–°ä¸€æ‰¹ç²’å­çš„å±æ€§å€¼ æ‰€ä»¥ä¸èƒ½ä¸€å¼€å§‹å°±ä¼ é€’æ•°æ® éœ€è¦æ¯æ¬¡æ›´æ–°æ•°æ®ç»™VBO æ‰€ä»¥å¼€å§‹ä¼ é€’æ•°æ®ä¸ºNULL åç»­ä½¿ç”¨subDataæ¥ä¼ é€’æ•°æ®
+unsigned int ParticleRenderer::createEmptyVBO(int floatCount) //æœ€å¤§çš„æµ®ç‚¹æ•°æ•°é‡
 {
 	unsigned int VBO;
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, floatCount * sizeof(float), NULL, GL_STREAM_DRAW); //ÕâÀïÓÃµÄÊÇstream_draw ÒâË¼Ó¦¸ÃÊÇÃ¿´Î»æÖÆµÄÊ±ºòÊı¾İ¶¼»á¸Ä±ä leanOpenGL½Ì³ÌÀïÊÇstatic_drawÓ¦¸ÃÊÇÊı¾İ´«µİÒ»´Î ±»Ê¹ÓÃºÜ¶à´Î ²»»á±»¸Ä±ä
+	glBufferData(GL_ARRAY_BUFFER, floatCount * sizeof(float), NULL, GL_STREAM_DRAW); //è¿™é‡Œç”¨çš„æ˜¯stream_draw æ„æ€åº”è¯¥æ˜¯æ¯æ¬¡ç»˜åˆ¶çš„æ—¶å€™æ•°æ®éƒ½ä¼šæ”¹å˜ leanOpenGLæ•™ç¨‹é‡Œæ˜¯static_drawåº”è¯¥æ˜¯æ•°æ®ä¼ é€’ä¸€æ¬¡ è¢«ä½¿ç”¨å¾ˆå¤šæ¬¡ ä¸ä¼šè¢«æ”¹å˜
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	return VBO;
 }
 
-//½¨Á¢VAOºÍVBOµÄÁ¬½Ó ¸æËßVAO ¶¥µãÉÏ¾ßÓĞµÄÕâĞ©ÊôĞÔ °´ÕÕÊ²Ã´ÑùµÄ²½³¤¡¢½Ú×àÈ¥´ÓVBOÉíÉÏ»ñÈ¡¶¥µãÊı¾İ È»ºóÈçºÎ¸üĞÂ¶¥µãÊôĞÔ
+//å»ºç«‹VAOå’ŒVBOçš„è¿æ¥ å‘Šè¯‰VAO é¡¶ç‚¹ä¸Šå…·æœ‰çš„è¿™äº›å±æ€§ æŒ‰ç…§ä»€ä¹ˆæ ·çš„æ­¥é•¿ã€èŠ‚å¥å»ä»VBOèº«ä¸Šè·å–é¡¶ç‚¹æ•°æ® ç„¶åå¦‚ä½•æ›´æ–°é¡¶ç‚¹å±æ€§
 void ParticleRenderer::setUpAttributes(unsigned int VAO, unsigned int VBO)
 {
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -147,7 +146,7 @@ void ParticleRenderer::setUpAttributes(unsigned int VAO, unsigned int VBO)
 	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, INSTANCE_DATA_LENGTH * sizeof(float), (void*)(12 * sizeof(float)));
 	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, INSTANCE_DATA_LENGTH * sizeof(float), (void*)(16 * sizeof(float)));
 	glVertexAttribPointer(6, 1, GL_FLOAT, GL_FALSE, INSTANCE_DATA_LENGTH * sizeof(float), (void*)(20 * sizeof(float)));
-	//ÊôĞÔx Ã¿äÖÈ¾Ò»¸öĞÂµÄÊµÀı¸üĞÂÒ»´ÎÊı¾İ£¨¼´ÏòºóÆ«ÒÆµü´úÒ»¸ö²½³¤£©
+	//å±æ€§x æ¯æ¸²æŸ“ä¸€ä¸ªæ–°çš„å®ä¾‹æ›´æ–°ä¸€æ¬¡æ•°æ®ï¼ˆå³å‘ååç§»è¿­ä»£ä¸€ä¸ªæ­¥é•¿ï¼‰
 	glVertexAttribDivisor(1, 1);
 	glVertexAttribDivisor(2, 1);
 	glVertexAttribDivisor(3, 1);
@@ -170,7 +169,7 @@ void ParticleRenderer::storeMatrixData(const mat4& matrix, float data[])
 	const float* pMatrix = glm::value_ptr(matrix);
 	for (int i = 0; i < 16; i++)
 	{
-		*(data + pointer++) = *pMatrix++;  //ÍùdataÊı×éÀïÌî³äÊı¾İ ÒòÎªmat4¾ØÕóÖĞÊÇ°´ÁĞÀ´ÅÅĞòµÄ ËùÒÔ¸ÕºÃ·ûºÏ
+		*(data + pointer++) = *pMatrix++;  //å¾€dataæ•°ç»„é‡Œå¡«å……æ•°æ® å› ä¸ºmat4çŸ©é˜µä¸­æ˜¯æŒ‰åˆ—æ¥æ’åºçš„ æ‰€ä»¥åˆšå¥½ç¬¦åˆ
 	}
 }
 
