@@ -1,7 +1,7 @@
 # Particle Special Effect System
 This is a particle special effects system based on OpenGL.
 
-这是一个基于OpenGL实现的一个粒子特效系统。
+这是一个基于OpenGL实现的粒子特效系统。
 
 ## 项目结构
 - **src**： 源文件
