@@ -5,7 +5,7 @@ This is a particle special effects system based on OpenGL.
 
 ## 项目结构
 - **src**： 源文件
-- **include**： 包含头文件
+- **include**： 头文件
 - **lib**： 相关库
 - **resource**： 相关资源，包括纹理、天空盒
 - **shader**： 着色器文件
