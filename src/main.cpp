@@ -155,12 +155,12 @@ int main()
 
 	vector<std::string> faces
 	{
-		"./resource/skybox/arch3_rt.png", 
-		"./resource/skybox/arch3_lf.png",
-		"./resource/skybox/arch3_up.png", 
-		"./resource/skybox/arch3_dn.png",
-		"./resource/skybox/arch3_ft.png",
-		"./resource/skybox/arch3_bk.png",
+		"./resource/skybox/darkskies_ft.tga", 
+		"./resource/skybox/darkskies_bk.tga",
+		"./resource/skybox/darkskies_up.tga", 
+		"./resource/skybox/darkskies_dn.tga",
+		"./resource/skybox/darkskies_rt.tga",
+		"./resource/skybox/darkskies_lf.tga",
 	};
 
 	unsigned int cubemapTexture = loadCubemap(faces);
