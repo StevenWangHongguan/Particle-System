@@ -12,30 +12,29 @@
 
 #include "Particle.h"
 #include "Quad.h"
-using namespace std;
 
 typedef glm::mat4 mat4;
 
 extern unsigned int SCR_WIDTH;
 extern unsigned int SCR_HEIGHT;
 
-//ÉùÃ÷Îªstatic Ö»ÄÜÔÚ±¾ÎÄ¼şÖĞÊ¹ÓÃ
-static const int MAX_INSTANCES = 10000; //Ã¿´Î³¡¾°»æÖÆµÄ×î´óÁ£×ÓÊı Ê®Íò¸ö ¹»ÄãÓÃÁË°É ¸ÄÎª1Íò¸ö Ö¡ÂÊÃ÷ÏÔÉÏÉı
-static const int INSTANCE_DATA_LENGTH = 21; //Ã¿¸öÊµÀıµÄÊôĞÔÊı¾İ³¤¶È
-static float *vboData = new float[MAX_INSTANCES * INSTANCE_DATA_LENGTH]; //ÕâÀïÊ¹ÓÃ¾²Ì¬Êı×é»á±¨´í
+//å£°æ˜ä¸ºstatic åªèƒ½åœ¨æœ¬æ–‡ä»¶ä¸­ä½¿ç”¨
+static const int MAX_INSTANCES = 10000; //æ¯æ¬¡åœºæ™¯ç»˜åˆ¶çš„æœ€å¤§ç²’å­æ•° åä¸‡ä¸ª å¤Ÿä½ ç”¨äº†å§ æ”¹ä¸º1ä¸‡ä¸ª å¸§ç‡æ˜æ˜¾ä¸Šå‡
+static const int INSTANCE_DATA_LENGTH = 21; //æ¯ä¸ªå®ä¾‹çš„å±æ€§æ•°æ®é•¿åº¦
+static float *vboData = new float[MAX_INSTANCES * INSTANCE_DATA_LENGTH]; //è¿™é‡Œä½¿ç”¨é™æ€æ•°ç»„ä¼šæŠ¥é”™
 
 class ParticleRenderer{
 private:
 	Quad *quad;
 	Shader *particleShader;
 	unsigned int VBO;
-	unsigned int pointer; //ÓÃÓÚÖ¸ÏòvboData¸øÃ¿¸öÎ»ÖÃ¸³Öµ
+	unsigned int pointer; //ç”¨äºæŒ‡å‘vboDataç»™æ¯ä¸ªä½ç½®èµ‹å€¼
 
 	unsigned int createEmptyVBO(int floatCount);
 	void setUpAttributes(unsigned int VAO, unsigned int VBO);
 
-	void prepare(); //¼¤»î×ÅÉ«Æ÷ÖĞµÄ¶¥µãÊôĞÔ
-	void bindTexture(ParticleTexture texture); //¼¤»î×ÅÉ«Æ÷ÖĞµÄÎÆÀíµ¥Ôª ÉèÖÃ1¸öuniform
+	void prepare(); //æ¿€æ´»ç€è‰²å™¨ä¸­çš„é¡¶ç‚¹å±æ€§
+	void bindTexture(ParticleTexture texture); //æ¿€æ´»ç€è‰²å™¨ä¸­çš„çº¹ç†å•å…ƒ è®¾ç½®1ä¸ªuniform
 	void updateModelViewMatrix(const vec3& position, float rotation, float scale, mat4 view, float vboData[]);
 	void storeMatrixData(const mat4& matrix, float data[]);
 	void updateTexCoordsInfo(const Particle& particle, float data[]);
@@ -50,7 +49,7 @@ public:
 
 #endif
 
-// ±¸×¢ 
-// ÔÚÒ»¸öÀàÖĞ¶¨ÒåÒ»¸öÆäËû×Ô¶¨ÒåÀà¶ÔÏóµÄÊ±ºò Õâ¸öÀàÒªÓµÓĞÄ¬ÈÏ¹¹Ôìº¯Êı ·ñÔò²»ÄÜÔÙÀàÄÚ¶ÔÕâ¸ö×Ô¶¨ÒåÀà½øĞĞ¼òµ¥µÄÉùÃ÷
-// ±ÈÈçShaderÀà Ã»ÓĞÄ¬ÈÏ¹¹Ôìº¯Êı Ö»ÄÜÔÚÀàÖĞ¶¨ÒåÕâ¸öShaderµÄÊ±ºòÖ±½Ó´´½¨Ò»¸ö¶ÔÏó
-// Æä´Î µÄÈ·¿ÉÒÔÍ¨¹ı*(new xxx)µÄ·½Ê½´´½¨Ò»¸öÀà¶ÔÏó ¶ø²»±ØĞëÓÃÒ»¸öÖ¸Õë
+// å¤‡æ³¨ 
+// åœ¨ä¸€ä¸ªç±»ä¸­å®šä¹‰ä¸€ä¸ªå…¶ä»–è‡ªå®šä¹‰ç±»å¯¹è±¡çš„æ—¶å€™ è¿™ä¸ªç±»è¦æ‹¥æœ‰é»˜è®¤æ„é€ å‡½æ•° å¦åˆ™ä¸èƒ½å†ç±»å†…å¯¹è¿™ä¸ªè‡ªå®šä¹‰ç±»è¿›è¡Œç®€å•çš„å£°æ˜
+// æ¯”å¦‚Shaderç±» æ²¡æœ‰é»˜è®¤æ„é€ å‡½æ•° åªèƒ½åœ¨ç±»ä¸­å®šä¹‰è¿™ä¸ªShaderçš„æ—¶å€™ç›´æ¥åˆ›å»ºä¸€ä¸ªå¯¹è±¡
+// å…¶æ¬¡ çš„ç¡®å¯ä»¥é€šè¿‡*(new xxx)çš„æ–¹å¼åˆ›å»ºä¸€ä¸ªç±»å¯¹è±¡ è€Œä¸å¿…é¡»ç”¨ä¸€ä¸ªæŒ‡é’ˆ
